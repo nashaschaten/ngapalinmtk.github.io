@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Belajar Perkalian 1–10</title>
+  <meta name="description" content="Latihan tabel perkalian 1 sampai 10 dengan mode belajar & kuis interaktif." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0e13;/* gelap menenangkan */
+      --panel:#121722;
+      --muted:#9aa4b2;
+      --text:#e6edf6;
+      --accent:#7c3aed; /* ungu lembut */
+      --accent-2:#22d3ee; /* cyan */
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --err:#ef4444;
+      --ring: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #1a2030 0%, transparent 60%),
+                  radial-gradient(800px 400px at 120% 10%, #0e1726 0%, transparent 50%),
+                  var(--bg);
+      color:var(--text);
+    }
+    a{color:var(--accent-2);text-decoration:none}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .title{display:flex;gap:12px;align-items:center}
+    .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#4338ca);display:grid;place-items:center;box-shadow:0 10px 30px rgba(124,58,237,.35)}
+    .logo span{font-weight:800}
+    h1{font-size:clamp(22px,3vw,32px);margin:0}
+    .panel{background:rgba(18,23,34,.7);backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,.06); border-radius:16px}
+    .bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:14px}
+    .selects{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    select, input[type="number"], button, .chip{
+      background:#0f1420; color:var(--text); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px; font-size:14px
+    }
+    select:focus, input:focus, button:focus{outline:none; box-shadow: var(--ring)}
+    button{cursor:pointer; border:1px solid rgba(255,255,255,.18)}
+    .chip{cursor:pointer; user-select:none}
+    .chip.active{background:linear-gradient(135deg, rgba(124,58,237,.25), rgba(34,211,238,.25)); border-color: rgba(124,58,237,.55)}
+
+    .grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; padding:12px}
+    .card{background:rgba(13,17,27,.8); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding:14px; position:relative}
+    .card h3{margin:0 0 8px 0; font-size:16px; color:#d6e3ff}
+    .tbl{display:grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap:6px; font-variant-numeric:tabular-nums}
+    .tbl span{padding:6px 8px; border-radius:8px; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.06)}
+
+    .quiz{display:grid; grid-template-columns:1.1fr 1fr; gap:14px; padding:14px}
+    @media (max-width:900px){.quiz{grid-template-columns:1fr}}
+    .box{padding:16px}
+    .muted{color:var(--muted)}
+    .stat{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+    .stat div{background:#0f1420;border:1px solid rgba(255,255,255,.08); padding:10px 12px; border-radius:12px}
+    .q{font-size:clamp(22px,3vw,32px); font-weight:800; letter-spacing:.5px}
+    .q small{font-weight:600;color:var(--muted)}
+    .ans{display:flex; gap:10px; align-items:center; margin-top:10px}
+    .ans input{width:120px;text-align:center}
+    .msg{min-height:24px;margin-top:8px}
+    .msg.ok{color:var(--ok)}
+    .msg.err{color:var(--err)}
+
+    footer{opacity:.8; font-size:12px; margin-top:24px; text-align:center}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; background:#0f1420; border:1px solid rgba(255,255,255,.16); border-radius:8px; padding:2px 6px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo"><span>×</span></div>
+        <div>
+          <h1>Belajar Perkalian 1–10</h1>
+          <div class="muted">Mode belajar cepat + kuis acak. Cocok buat pemanasan otak 😼</div>
+        </div>
+      </div>
+      <div>
+        <button id="toggleAll" title="Tampilkan semua tabel">Tampilkan Semua</button>
+      </div>
+    </header>
+
+    <!-- BAR -->
+    <div class="panel bar">
+      <div class="selects">
+        <label for="pilih">Pilih tabel:</label>
+        <select id="pilih" aria-label="Pilih tabel perkalian">
+          <!-- options injected -->
+        </select>
+        <span class="muted">atau</span>
+        <div id="chips" class="selects"></div>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <button id="printBtn" title="Cetak / simpan PDF">Cetak</button>
+        <button id="resetBtn" title="Reset progres kuis">Reset Progres</button>
+      </div>
+    </div>
+
+    <!-- GRID TABEL -->
+    <section class="panel">
+      <div id="grid" class="grid" aria-live="polite"></div>
+    </section>
+
+    <!-- QUIZ -->
+    <section class="panel" style="margin-top:14px">
+      <div class="quiz">
+        <div class="box">
+          <div class="muted" style="margin-bottom:8px">KUIS CEPAT</div>
+          <div id="q" class="q">3 × 4 = ?</div>
+          <div class="ans">
+            <input id="inp" type="number" inputmode="numeric" placeholder="jawaban" />
+            <button id="submit">Jawab</button>
+            <button id="skip" title="Lewati soal (ga ngurangin streak)">Lewati</button>
+          </div>
+          <div id="msg" class="msg muted"></div>
+        </div>
+        <div class="box">
+          <div class="muted" style="margin-bottom:8px">STATISTIK</div>
+          <div class="stat">
+            <div>Streak: <strong id="streak">0</strong></div>
+            <div>Terbaik: <strong id="best">0</strong></div>
+            <div>Benar: <strong id="correct">0</strong></div>
+            <div>Salah: <strong id="wrong">0</strong></div>
+            <div>Mode: <span class="chip" id="modeAll">Campur 1–10</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Dibuat untuk latihan cepat. Gunakan <span class="kbd">Ctrl</span> + <span class="kbd">P</span> untuk cetak. Simpan sebagai PDF untuk belajar offline.
+      <br/>By: <a href="https://github.com/" rel="noopener">@ilparatar</a>
+    </footer>
+  </div>
+
+  <script>
+    const pilih = document.getElementById('pilih');
+    const chips = document.getElementById('chips');
+    const grid = document.getElementById('grid');
+    const toggleAll = document.getElementById('toggleAll');
+    const printBtn = document.getElementById('printBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // Quiz elements
+    const qEl = document.getElementById('q');
+    const inp = document.getElementById('inp');
+    const submit = document.getElementById('submit');
+    const skip = document.getElementById('skip');
+    const msg = document.getElementById('msg');
+    const streakEl = document.getElementById('streak');
+    const bestEl = document.getElementById('best');
+    const correctEl = document.getElementById('correct');
+    const wrongEl = document.getElementById('wrong');
+    const modeAll = document.getElementById('modeAll');
+
+    let showAll = false;
+    let current = {a:0,b:0,ans:0};
+    let stats = JSON.parse(localStorage.getItem('perkalian-stats')||'{}');
+    if(!stats.best) stats.best = 0;
+    if(!stats.correct) stats.correct = 0;
+    if(!stats.wrong) stats.wrong = 0;
+    updateStats();
+
+    // Populate select & chips 1–10
+    for(let i=1;i<=10;i++){
+      const opt = document.createElement('option'); opt.value=i; opt.textContent=`Tabel ${i}`; pilih.appendChild(opt);
+      const chip = document.createElement('button'); chip.className='chip'; chip.textContent=i; chip.dataset.v=i; chips.appendChild(chip);
+    }
+    pilih.value = 1;
+
+    chips.addEventListener('click', (e)=>{
+      const v = e.target?.dataset?.v; if(!v) return; pilih.value = v; render();
+      for(const c of chips.children){c.classList.toggle('active', c.dataset.v===v)}
+    });
+    pilih.addEventListener('change', render);
+
+    toggleAll.addEventListener('click', ()=>{ showAll=!showAll; render(); toggleAll.textContent = showAll? 'Tampilkan Satu' : 'Tampilkan Semua'; });
+    printBtn.addEventListener('click', ()=> window.print());
+    resetBtn.addEventListener('click', ()=>{ stats={best:0,correct:0,wrong:0}; saveStats(); updateStats(); feedback('Progres direset.', ''); });
+
+    function render(){
+      grid.innerHTML='';
+      if(showAll){
+        for(let i=1;i<=10;i++) grid.appendChild(makeCard(i));
+      }else{
+        const n = Number(pilih.value||1); grid.appendChild(makeCard(n));
+      }
+    }
+
+    function makeCard(n){
+      const card = document.createElement('div'); card.className='card';
+      const h = document.createElement('h3'); h.textContent = `Tabel ${n}`; card.appendChild(h);
+      const tbl = document.createElement('div'); tbl.className='tbl';
+      for(let i=1;i<=10;i++){
+        const a = document.createElement('span'); a.textContent = n; tbl.appendChild(a);
+        const x = document.createElement('span'); x.textContent = '×'; tbl.appendChild(x);
+        const b = document.createElement('span'); b.textContent = i; tbl.appendChild(b);
+        const eq = document.createElement('span'); eq.textContent = '='; tbl.appendChild(eq);
+        const c = document.createElement('span'); c.textContent = n*i; tbl.appendChild(c);
+      }
+      card.appendChild(tbl); return card;
+    }
+
+    // QUIZ LOGIC
+    let pool = Array.from({length:10}, (_,i)=>i+1);
+    let modeRange = {min:1, max:10};
+
+    function nextQ(){
+      const a = rand(modeRange.min, modeRange.max);
+      const b = rand(1,10);
+      current = {a,b,ans:a*b};
+      qEl.innerHTML = `<small>Soal:</small> ${a} × ${b} = ?`;
+      inp.value=''; inp.focus();
+      msg.textContent=''; msg.className='msg muted';
+    }
+
+    function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
+
+    function feedback(text, type){
+      msg.textContent=text; msg.className = 'msg ' + (type||'muted');
+    }
+
+    function updateStats(){
+      streakEl.textContent = Number(sessionStorage.getItem('streak')||0);
+      bestEl.textContent = stats.best||0;
+      correctEl.textContent = stats.correct||0;
+      wrongEl.textContent = stats.wrong||0;
+    }
+
+    function incStreak(){
+      let s = Number(sessionStorage.getItem('streak')||0) + 1;
+      sessionStorage.setItem('streak', s);
+      if(s > (stats.best||0)){ stats.best = s; saveStats(); }
+      updateStats();
+    }
+    function resetStreak(){ sessionStorage.setItem('streak', 0); updateStats(); }
+    function saveStats(){ localStorage.setItem('perkalian-stats', JSON.stringify(stats)); updateStats(); }
+
+    submit.addEventListener('click', check);
+    inp.addEventListener('keydown', (e)=>{ if(e.key==='Enter') check(); });
+    skip.addEventListener('click', ()=> nextQ());
+
+    function check(){
+      const val = Number(inp.value);
+      if(Number.isNaN(val)) return;
+      if(val === current.ans){
+        incStreak(); stats.correct++; saveStats();
+        feedback('Mantap! Jawaban kamu benar ✔', 'ok');
+        setTimeout(nextQ, 350);
+      }else{
+        resetStreak(); stats.wrong++; saveStats();
+        feedback(`Belum tepat. ${current.a} × ${current.b} = ${current.ans}`, 'err');
+      }
+    }
+
+    modeAll.addEventListener('click', ()=>{
+      // toggle 1–5 vs 6–10 vs 1–10
+      const m = modeAll.dataset.mode||'all';
+      if(m==='all'){ modeRange={min:1,max:5}; modeAll.dataset.mode='1-5'; modeAll.textContent='Fokus 1–5'; }
+      else if(m==='1-5'){ modeRange={min:6,max:10}; modeAll.dataset.mode='6-10'; modeAll.textContent='Fokus 6–10'; }
+      else { modeRange={min:1,max:10}; modeAll.dataset.mode='all'; modeAll.textContent='Campur 1–10'; }
+      nextQ();
+    });
+
+    // init
+    render();
+    nextQ();
+  </script>
+</body>
+</html>
